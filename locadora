@@ -1,0 +1,152 @@
+create database Crowindustria;
+use Crowindustria;
+
+CREATE TABLE endereco (
+    id_endereco INT PRIMARY KEY,
+    rua VARCHAR(100),
+    numero INT,
+    cidade VARCHAR(50),
+    estado VARCHAR(2),
+    cep VARCHAR(10)
+);
+
+CREATE TABLE cliente (
+    id_cliente INT PRIMARY KEY,
+    nome VARCHAR(100),
+    telefone VARCHAR(20),
+    email VARCHAR(100),
+    id_endereco INT,
+    FOREIGN KEY (id_endereco) REFERENCES endereco(id_endereco)
+);
+
+CREATE TABLE veiculo (
+    id_veiculo INT PRIMARY KEY,
+    modelo VARCHAR(50),
+    marca VARCHAR(50),
+    ano INT,
+    placa VARCHAR(10),
+    id_cliente INT,
+    FOREIGN KEY (id_cliente) REFERENCES cliente(id_cliente)
+);
+
+CREATE TABLE atendente (
+    id_atendente INT PRIMARY KEY,
+    nome VARCHAR(100),
+    setor VARCHAR(50)
+);
+
+CREATE TABLE manutencao (
+    id_manutencao INT PRIMARY KEY,
+    descricao TEXT,
+    data DATE,
+    custo DECIMAL(10,2),
+    id_veiculo INT,
+    id_atendente INT,
+    FOREIGN KEY (id_veiculo) REFERENCES veiculo(id_veiculo),
+    FOREIGN KEY (id_atendente) REFERENCES atendente(id_atendente)
+);
+
+CREATE TABLE contrato (
+    id_contrato INT PRIMARY KEY,
+    data_inicio DATE,
+    data_fim DATE,
+    valor_total DECIMAL(10,2),
+    id_cliente INT,
+    id_veiculo INT,
+    FOREIGN KEY (id_cliente) REFERENCES cliente(id_cliente),
+    FOREIGN KEY (id_veiculo) REFERENCES veiculo(id_veiculo)
+);
+
+-- Inserção de dados
+
+INSERT INTO endereco VALUES 
+(1, 'Rua das Flores', 123, 'Ponta Grossa', 'PR', '84000-000'),
+(2, 'Av. Brasil', 456, 'Curitiba', 'PR', '80000-000');
+
+INSERT INTO cliente VALUES 
+(1, 'João Silva', '(42)99999-0000', 'joao@email.com', 1),
+(2, 'Ana Lima', '(41)98888-1111', 'ana@email.com', 2);
+
+INSERT INTO veiculo VALUES 
+(1, 'Civic', 'Honda', 2020, 'ABC-1234', 1),
+(2, 'Corolla', 'Toyota', 2021, 'XYZ-5678', 2);
+
+INSERT INTO atendente VALUES 
+(1, 'Maria Souza', 'Oficina'),
+(2, 'Carlos Mendes', 'Recepção');
+
+INSERT INTO manutencao VALUES 
+(1, 'Troca de óleo e filtro', '2025-09-15', 250.00, 1, 1),
+(2, 'Alinhamento e balanceamento', '2025-09-20', 180.00, 2, 2);
+
+INSERT INTO contrato VALUES 
+(1, '2025-09-01', '2026-09-01', 12000.00, 1, 1),
+(2, '2025-10-01', '2026-10-01', 13500.00, 2, 2);
+
+SELECT 
+    c.nome AS cliente,
+    v.modelo AS veiculo,
+    v.placa,
+    e.rua,
+    e.numero,
+    e.cidade
+FROM cliente c
+JOIN veiculo v ON c.id_cliente = v.id_cliente
+JOIN endereco e ON c.id_endereco = e.id_endereco;
+
+SELECT 
+    m.descricao,
+    m.data,
+    m.custo,
+    v.modelo AS veiculo,
+    a.nome AS atendente
+FROM manutencao m
+JOIN veiculo v ON m.id_veiculo = v.id_veiculo
+JOIN atendente a ON m.id_atendente = a.id_atendente;
+
+SELECT 
+    ct.id_contrato,
+    c.nome AS cliente,
+    v.modelo AS veiculo,
+    ct.data_inicio,
+    ct.data_fim,
+    ct.valor_total
+FROM contrato ct
+JOIN cliente c ON ct.id_cliente = c.id_cliente
+JOIN veiculo v ON ct.id_veiculo = v.id_veiculo;
+
+SELECT 
+    v.modelo,
+    v.placa,
+    c.nome AS dono,
+    m.descricao,
+    m.data
+FROM veiculo v
+JOIN cliente c ON v.id_cliente = c.id_cliente
+JOIN manutencao m ON v.id_veiculo = m.id_veiculo;
+
+SELECT 
+    c.nome AS cliente,
+    ct.id_contrato,
+    ct.valor_total,
+    e.rua,
+    e.numero,
+    e.cidade,
+    e.estado
+FROM cliente c
+JOIN contrato ct ON c.id_cliente = ct.id_cliente
+JOIN endereco e ON c.id_endereco = e.id_endereco;
+
+
+
+ALTER TABLE cliente ADD cpf VARCHAR(14);
+ALTER TABLE manutencao MODIFY descricao VARCHAR(255);
+ALTER TABLE contrato ADD observacoes TEXT;
+
+SELECT * FROM cliente;
+SELECT * FROM veiculo;
+SELECT * FROM atendente;
+SELECT * FROM manutencao;
+SELECT * FROM contrato;
+SELECT * FROM endereco;
+
